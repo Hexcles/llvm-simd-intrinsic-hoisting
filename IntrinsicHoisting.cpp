@@ -61,7 +61,7 @@ namespace {
             modified = true;
 
             errs() << "MODIFIED:\n\n";
-      		BB.dump();
+      		  BB.dump();
           }
 
           if (func->getName() == "llvm.x86.sse2.pavg.w") {
@@ -87,7 +87,7 @@ namespace {
             modified = true;
 
             errs() << "MODIFIED:\n\n";
-          BB.dump();
+            BB.dump();
           }
 
 
@@ -162,7 +162,7 @@ namespace {
             modified = true;
 
             errs() << "MODIFIED:\n\n";
-          BB.dump();
+            BB.dump();
           }          
 
           if (func->getName() == "llvm.x86.sse2.packuswb.128") {
@@ -181,7 +181,7 @@ namespace {
             Constant * index[16];
             for (int i = 0; i < 16;i++){
                 index[i] = ConstantInt::get(Type::getInt32Ty(context), 2 * i);
-              }
+            }
             ArrayRef <Constant *> indexref(index,16);
             Constant * indexVector = ConstantVector::get(indexref);
 
@@ -207,7 +207,7 @@ namespace {
             modified = true;
 
             errs() << "MODIFIED:\n\n";
-          BB.dump();
+            BB.dump();
           }        
 
           if (func->getName() == "llvm.x86.sse2.pmovmskb.128") {
@@ -246,7 +246,7 @@ namespace {
 
           if (func->getName() == "llvm.x86.sse2.psrl.q") {
           	errs() << "ORIGINAL:\n\n";
-      		BB.dump();
+      		  BB.dump();
 
             Value *v = call->getOperand(0);
             Value *count_raw = call->getOperand(1);
@@ -266,7 +266,7 @@ namespace {
             modified = true;
 
             errs() << "MODIFIED:\n\n";
-      		BB.dump();
+      		  BB.dump();
           }
 
         }
