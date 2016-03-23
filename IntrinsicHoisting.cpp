@@ -41,7 +41,7 @@ namespace {
           // TODO more intrinsic replacement
           if (func->getName() == "llvm.x86.sse2.psll.q") {
           	errs() << "ORIGINAL:\n\n";
-      		  BB.dump();
+            BB.dump();
 
             Value *v = call->getOperand(0);
             Value *count_raw = call->getOperand(1);
@@ -61,7 +61,7 @@ namespace {
             modified = true;
 
             errs() << "MODIFIED:\n\n";
-      		  BB.dump();
+            BB.dump();
           }
 
           if (func->getName() == "llvm.x86.sse2.pavg.w") {
@@ -212,7 +212,7 @@ namespace {
 
           if (func->getName() == "llvm.x86.sse2.pmovmskb.128") {
           	errs() << "ORIGINAL:\n\n";
-      		  BB.dump();
+            BB.dump();
       		
           	Value *v = call->getOperand(0);
           	IRBuilder<> builder(call);
@@ -239,14 +239,14 @@ namespace {
           	modified = true;
 
             errs() << "MODIFIED:\n\n";
-      		  BB.dump();
+            BB.dump();
           }
 
 
 
           if (func->getName() == "llvm.x86.sse2.psrl.q") {
           	errs() << "ORIGINAL:\n\n";
-      		  BB.dump();
+            BB.dump();
 
             Value *v = call->getOperand(0);
             Value *count_raw = call->getOperand(1);
@@ -266,7 +266,7 @@ namespace {
             modified = true;
 
             errs() << "MODIFIED:\n\n";
-      		  BB.dump();
+            BB.dump();
           }
 
         }
