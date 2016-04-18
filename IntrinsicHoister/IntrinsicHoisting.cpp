@@ -23,7 +23,7 @@ namespace {
 
     virtual bool runOnFunction(Function &F) override {
       bool modified = false;
-        
+
       LLVMContext & context = F.getContext();
 
       errs() << "Function: " << F.getName() << "\n";
@@ -41,7 +41,7 @@ namespace {
 
           // TODO more intrinsic replacement
           if (func->getName() == "llvm.x86.sse2.psll.q") {
-          	errs() << "ORIGINAL:\n\n";
+            errs() << "ORIGINAL:\n\n";
             BB.dump();
 
             Value *v = call->getOperand(0);
@@ -73,15 +73,15 @@ namespace {
             Value *v1 = call->getOperand(1);
             Value *v2 = call->getOperand(2);
             std::vector<Value *> args;
-			args.push_back(v0);
-			args.push_back(v1);
-			args.push_back(v2);
+            args.push_back(v0);
+            args.push_back(v1);
+            args.push_back(v2);
 
-			Function *fun = Intrinsic::getDeclaration(F.getParent(), Intrinsic::fma, VectorType::get(Type::getDoubleTy(context), 2));
+            Function *fun = Intrinsic::getDeclaration(F.getParent(), Intrinsic::fma, VectorType::get(Type::getDoubleTy(context), 2));
             // Insert before call.
-			IRBuilder<> Builder(call);
-			Value *newfunc = Builder.CreateCall(fun, args);
-			ReplaceInstWithValue(BB.getInstList(), InstItr, newfunc);
+            IRBuilder<> Builder(call);
+            Value *newfunc = Builder.CreateCall(fun, args);
+            ReplaceInstWithValue(BB.getInstList(), InstItr, newfunc);
             modified = true;
 
             errs() << "MODIFIED:\n\n";
@@ -89,7 +89,7 @@ namespace {
           }
 
 
-         if (func->getName() == "llvm.x86.sse2.psad.bw") {
+          if (func->getName() == "llvm.x86.sse2.psad.bw") {
             errs() << "ORIGINAL:\n\n";
             BB.dump();
 
@@ -117,7 +117,7 @@ namespace {
             //split a <16 x i8> vector to two <8 x i8> vectors:
             Constant * index[8];
             for (int i = 0; i < 8;i++){
-                index[i] = ConstantInt::get(Type::getInt32Ty(context), i);
+              index[i] = ConstantInt::get(Type::getInt32Ty(context), i);
             }
             ArrayRef <Constant *> indexref(index, 8);
             Constant * indexVector = ConstantVector::get(indexref);
@@ -127,7 +127,7 @@ namespace {
 
             Constant * index1[8];
             for (int i = 0; i < 8;i++){
-                index1[i] = ConstantInt::get(Type::getInt32Ty(context), 8 + i);
+              index1[i] = ConstantInt::get(Type::getInt32Ty(context), 8 + i);
             }
             ArrayRef <Constant *> indexref1(index1, 8);
             Constant * indexVector1 = ConstantVector::get(indexref1);
@@ -140,7 +140,7 @@ namespace {
             //mask0 = <4 x i32> <i32 0, i32 1, i32 2, i32 3>
             Constant * index_0[4];
             for (int i = 0; i < 4;i++){
-                index_0[i] = ConstantInt::get(Type::getInt32Ty(context), i);
+              index_0[i] = ConstantInt::get(Type::getInt32Ty(context), i);
             }
             ArrayRef <Constant *> indexref_0(index_0, 4);
             Constant * indexVector_0 = ConstantVector::get(indexref_0);
@@ -149,7 +149,7 @@ namespace {
             //mask1 = <4 x i32> <i32 4, i32 5, i32 6, i32 7>
             Constant * index_1[4];
             for (int i = 0; i < 4;i++){
-                index_1[i] = ConstantInt::get(Type::getInt32Ty(context), i + 4);
+              index_1[i] = ConstantInt::get(Type::getInt32Ty(context), i + 4);
             }
             ArrayRef <Constant *> indexref_1(index_1, 4);
             Constant * indexVector_1 = ConstantVector::get(indexref_1);
@@ -158,7 +158,7 @@ namespace {
             //mask2 = <2 x i32> <i32 0, i32 1>
             Constant * index_2[2];
             for (int i = 0; i < 2;i++){
-                index_2[i] = ConstantInt::get(Type::getInt32Ty(context), i);
+              index_2[i] = ConstantInt::get(Type::getInt32Ty(context), i);
             }
             ArrayRef <Constant *> indexref_2(index_2, 2);
             Constant * indexVector_2 = ConstantVector::get(indexref_2);
@@ -167,7 +167,7 @@ namespace {
             //mask3 = <2 x i32> <i32 2, i32 3>
             Constant * index_3[2];
             for (int i = 0; i < 2;i++){
-                index_3[i] = ConstantInt::get(Type::getInt32Ty(context), i + 2);
+              index_3[i] = ConstantInt::get(Type::getInt32Ty(context), i + 2);
             }
             ArrayRef <Constant *> indexref_3(index_3, 2);
             Constant * indexVector_3 = ConstantVector::get(indexref_3);
@@ -212,14 +212,14 @@ namespace {
             Value *v55 = builder.CreateExtractElement(sum22, ConstantInt::get(Type::getInt8Ty(context), 0));
             Value *v66 = builder.CreateExtractElement(sum22, ConstantInt::get(Type::getInt8Ty(context), 1));
             Value *sum33 = builder.CreateAdd(v55, v66);
-            
+
             Value *elem1 = builder.CreateZExt(sum33, Type::getInt64Ty(context));
 
             VectorType * vecTy = VectorType::get(builder.getInt64Ty(), 2);
             Value *vec = UndefValue::get(vecTy);
             vec = builder.CreateInsertElement(vec, elem0, builder.getInt32(0));
             vec = builder.CreateInsertElement(vec, elem1, builder.getInt32(1));
-           
+
             ReplaceInstWithValue(BB.getInstList(), InstItr, vec);
             modified = true;
 
@@ -343,7 +343,7 @@ namespace {
             Value *m1 = builder.CreateBitCast(v1, VectorType::get(Type::getInt8Ty(context), 16));
             Constant * index[16];
             for (int i = 0; i < 16;i++){
-                index[i] = ConstantInt::get(Type::getInt32Ty(context), 2 * i);
+              index[i] = ConstantInt::get(Type::getInt32Ty(context), 2 * i);
             }
             ArrayRef <Constant *> indexref(index,16);
             Constant * indexVector = ConstantVector::get(indexref);
@@ -352,7 +352,7 @@ namespace {
 
             // Another way to hoist "llvm.x86.sse2.packuswb.128" instruction.
             /*Value *v0 = call->getOperand(0);
-            Value *v1 = call->getOperand(1);
+              Value *v1 = call->getOperand(1);
             // Insert before call.
             IRBuilder<> builder(call);
             Value *high8 = builder.CreateTrunc(v1, VectorType::get(Type::getInt8Ty(context), 8));
@@ -360,8 +360,8 @@ namespace {
 
             Constant * index[16];
             for (int i = 0; i < 16;i++){
-                index[i] = ConstantInt::get(Type::getInt32Ty(context), i);
-              }
+            index[i] = ConstantInt::get(Type::getInt32Ty(context), i);
+            }
             ArrayRef <Constant *> indexref(index,16);
             Constant * indexVector = ConstantVector::get(indexref);
 
@@ -374,11 +374,11 @@ namespace {
           }        
 
           if (func->getName() == "llvm.x86.sse2.pmovmskb.128") {
-          	errs() << "ORIGINAL:\n\n";
+            errs() << "ORIGINAL:\n\n";
             BB.dump();
-      		
-          	Value *v = call->getOperand(0);
-          	IRBuilder<> builder(call);
+
+            Value *v = call->getOperand(0);
+            IRBuilder<> builder(call);
             //%zero = <16 x i8> <i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0, i8 0>
             //%comp = icmp slt <16 x i8> %v, <16 x i8> %zero
             //%result16 = bitcast <8 x i1> %comp to i16
@@ -390,16 +390,16 @@ namespace {
             Value *result = builder.CreateZExt(result16, Type::getInt32Ty(context));
 
             //Another way to hoist "llvm.x86.sse2.pmovmskb.128" instruction.
-       	    //build a vector <16 * i8> <i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7>
-          	/*Value *seven = Constant::getIntegerValue(Type::getInt8Ty(context), llvm::APInt(8, 7, false));
-            Value *temp = builder.CreateVectorSplat(16, seven);
-          	Value *msb = builder.CreateLShr(v, temp); 
-            errs() << "\nmsb:" << *msb << "\n";         	
-          	Value *tmp = builder.CreateTrunc(msb, VectorType::get(Type::getInt1Ty(context), 16));         	
-          	Value *result16 = builder.CreateBitCast(tmp, Type::getInt16Ty(context));
-          	Value *result = builder.CreateZExt(result16, Type::getInt32Ty(context));*/
-          	ReplaceInstWithValue(BB.getInstList(), InstItr, result);
-          	modified = true;
+            //build a vector <16 * i8> <i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7, i8 7>
+            /*Value *seven = Constant::getIntegerValue(Type::getInt8Ty(context), llvm::APInt(8, 7, false));
+              Value *temp = builder.CreateVectorSplat(16, seven);
+              Value *msb = builder.CreateLShr(v, temp); 
+              errs() << "\nmsb:" << *msb << "\n";         	
+              Value *tmp = builder.CreateTrunc(msb, VectorType::get(Type::getInt1Ty(context), 16));         	
+              Value *result16 = builder.CreateBitCast(tmp, Type::getInt16Ty(context));
+              Value *result = builder.CreateZExt(result16, Type::getInt32Ty(context));*/
+            ReplaceInstWithValue(BB.getInstList(), InstItr, result);
+            modified = true;
 
             errs() << "MODIFIED:\n\n";
             BB.dump();
@@ -408,7 +408,7 @@ namespace {
 
 
           if (func->getName() == "llvm.x86.sse2.psrl.q") {
-          	errs() << "ORIGINAL:\n\n";
+            errs() << "ORIGINAL:\n\n";
             BB.dump();
 
             Value *v = call->getOperand(0);
