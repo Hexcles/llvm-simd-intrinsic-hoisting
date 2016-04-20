@@ -17,7 +17,10 @@ using namespace llvm;
 namespace {
   struct IntrinsicHoistingPass : public BasicBlockPass {
     static char ID;
-    IntrinsicHoistingPass() : BasicBlockPass(ID) {}
+    IntrinsicHoistingPass() : BasicBlockPass(ID) {
+      // HACK: enforce debug output
+      DebugFlag = true;
+    }
 
     virtual bool doInitialization(Function &F) override {
       DEBUG(errs() << "Entering function: " << F.getName() << "\n");
@@ -388,6 +391,11 @@ namespace {
 }
 
 char IntrinsicHoistingPass::ID = 0;
+
+// Register the pass.
+static RegisterPass<IntrinsicHoistingPass> X(
+    "intrinsic-hoisting", "Intrinsic Hoisting Pass", false, false
+    );
 
 // Automatically enable the pass.
 // http://adriansampson.net/blog/clangpass.html
