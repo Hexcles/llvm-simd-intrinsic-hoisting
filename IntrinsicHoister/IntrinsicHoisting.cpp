@@ -72,7 +72,7 @@ namespace {
           args.push_back(v1);
           args.push_back(v2);
 
-          Function *fun = Intrinsic::getDeclaration(BB.getModule(), Intrinsic::fma, VectorType::get(Type::getDoubleTy(context), 2));
+          Function *fun = Intrinsic::getDeclaration(BB.getParent()->getParent(), Intrinsic::fma, VectorType::get(Type::getDoubleTy(context), 2));
           // Insert before call.
           IRBuilder<> Builder(call);
           Value *newfunc = Builder.CreateCall(fun, args);
