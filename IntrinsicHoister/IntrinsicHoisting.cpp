@@ -9,18 +9,19 @@
 #include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 
-#include "llvm/Support/Debug.h"
-#define DEBUG_TYPE "IntrinsicHoister"
+// Not using "llvm/Support/Debug.h" because of backward-compatiblity issues
+#ifndef NDEBUG
+#define DEBUG(X) X
+#else
+#define DEBUG(X) {}
+#endif
 
 using namespace llvm;
 
 namespace {
   struct IntrinsicHoistingPass : public BasicBlockPass {
     static char ID;
-    IntrinsicHoistingPass() : BasicBlockPass(ID) {
-      // HACK: enforce debug output
-      DebugFlag = true;
-    }
+    IntrinsicHoistingPass() : BasicBlockPass(ID) {}
 
     virtual bool doInitialization(Function &F) override {
       DEBUG(errs() << "Entering function: " << F.getName() << "\n");
