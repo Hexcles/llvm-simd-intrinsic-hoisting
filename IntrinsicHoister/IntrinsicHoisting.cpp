@@ -268,7 +268,7 @@ namespace {
           // %temp = sext <2 x i1> %comp to <2 x i64>
           // %result = bitcast <2 x i64> %temp to <2 x double>
 
-          Value *comp = builder.CreateFCmpULT(v0, v1);
+          Value *comp = builder.CreateFCmpOLT(v0, v1);
           Value *temp = builder.CreateSExt(comp, VectorType::get(Type::getInt64Ty(context), 2));
           Value *result = builder.CreateBitCast(temp, VectorType::get(Type::getDoubleTy(context), 2));          
 
