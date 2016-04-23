@@ -1,5 +1,5 @@
 	.text
-	.file	"min.ll"
+	.file	"min_original.ll"
 	.globl	main
 	.align	16, 0x90
 	.type	main,@function

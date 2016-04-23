@@ -1,5 +1,17 @@
 	.text
-	.file	"min.ll"
+	.file	"avg.ll"
+	.section	.rodata.cst16,"aM",@progbits,16
+	.align	16
+.LCPI0_0:
+	.short	1                       # 0x1
+	.short	1                       # 0x1
+	.short	1                       # 0x1
+	.short	1                       # 0x1
+	.short	1                       # 0x1
+	.short	1                       # 0x1
+	.short	1                       # 0x1
+	.short	1                       # 0x1
+	.text
 	.globl	main
 	.align	16, 0x90
 	.type	main,@function
@@ -87,7 +99,10 @@ main:                                   # @main
 	movaps	%xmm1, -48(%rbp)
 	movaps	%xmm0, -64(%rbp)
 	movaps	-48(%rbp), %xmm1
-	pminsw	%xmm0, %xmm1
+	paddw	%xmm0, %xmm1
+	movaps	.LCPI0_0(%rip), %xmm0   # xmm0 = [1,1,1,1,1,1,1,1]
+	paddw	%xmm0, %xmm1
+	psrlw	$1, %xmm1
 	movaps	%xmm1, c(%rip)
 	pshufd	$78, %xmm1, %xmm0       # xmm0 = xmm1[2,3,0,1]
 	movd	%xmm0, %rsi

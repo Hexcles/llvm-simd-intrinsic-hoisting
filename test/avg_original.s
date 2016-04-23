@@ -1,5 +1,5 @@
 	.text
-	.file	"min.ll"
+	.file	"avg_original.ll"
 	.globl	main
 	.align	16, 0x90
 	.type	main,@function
@@ -87,7 +87,7 @@ main:                                   # @main
 	movaps	%xmm1, -48(%rbp)
 	movaps	%xmm0, -64(%rbp)
 	movaps	-48(%rbp), %xmm1
-	pminsw	%xmm0, %xmm1
+	pavgw	%xmm0, %xmm1
 	movaps	%xmm1, c(%rip)
 	pshufd	$78, %xmm1, %xmm0       # xmm0 = xmm1[2,3,0,1]
 	movd	%xmm0, %rsi

@@ -1,5 +1,5 @@
 	.text
-	.file	"min.ll"
+	.file	"sad_original.ll"
 	.globl	main
 	.align	16, 0x90
 	.type	main,@function
@@ -22,9 +22,9 @@ main:                                   # @main
 	movw	$3, -70(%rbp)
 	movw	$4, -72(%rbp)
 	movw	$5, -74(%rbp)
-	movw	$6, -76(%rbp)
-	movw	$7, -78(%rbp)
-	movw	$8, -80(%rbp)
+	movw	$5, -76(%rbp)
+	movw	$6, -78(%rbp)
+	movw	$4, -80(%rbp)
 	movzwl	-66(%rbp), %eax
 	movd	%eax, %xmm0
 	movzwl	-74(%rbp), %eax
@@ -41,7 +41,7 @@ main:                                   # @main
 	movzwl	-76(%rbp), %eax
 	movd	%eax, %xmm1
 	punpcklwd	%xmm0, %xmm1    # xmm1 = xmm1[0],xmm0[0],xmm1[1],xmm0[1],xmm1[2],xmm0[2],xmm1[3],xmm0[3]
-	movl	$8, %eax
+	movl	$4, %eax
 	movd	%eax, %xmm0
 	movzwl	-72(%rbp), %eax
 	movd	%eax, %xmm3
@@ -55,9 +55,9 @@ main:                                   # @main
 	movw	$2, -6(%rbp)
 	movw	$1, -8(%rbp)
 	movw	$4, -10(%rbp)
-	movw	$6, -12(%rbp)
-	movw	$1, -14(%rbp)
-	movw	$2, -16(%rbp)
+	movw	$3, -12(%rbp)
+	movw	$6, -14(%rbp)
+	movw	$1, -16(%rbp)
 	movzwl	-2(%rbp), %eax
 	movd	%eax, %xmm0
 	movzwl	-10(%rbp), %eax
@@ -74,7 +74,7 @@ main:                                   # @main
 	movzwl	-12(%rbp), %eax
 	movd	%eax, %xmm1
 	punpcklwd	%xmm0, %xmm1    # xmm1 = xmm1[0],xmm0[0],xmm1[1],xmm0[1],xmm1[2],xmm0[2],xmm1[3],xmm0[3]
-	movl	$2, %eax
+	movl	$1, %eax
 	movd	%eax, %xmm0
 	movzwl	-8(%rbp), %eax
 	movd	%eax, %xmm3
@@ -86,12 +86,13 @@ main:                                   # @main
 	movaps	a(%rip), %xmm1
 	movaps	%xmm1, -48(%rbp)
 	movaps	%xmm0, -64(%rbp)
-	movaps	-48(%rbp), %xmm1
-	pminsw	%xmm0, %xmm1
-	movaps	%xmm1, c(%rip)
-	pshufd	$78, %xmm1, %xmm0       # xmm0 = xmm1[2,3,0,1]
-	movd	%xmm0, %rsi
-	movd	%xmm1, %rdx
+	movaps	-48(%rbp), %xmm0
+	movaps	-64(%rbp), %xmm1
+	psadbw	%xmm1, %xmm0
+	movaps	%xmm0, c(%rip)
+	pshufd	$78, %xmm0, %xmm1       # xmm1 = xmm0[2,3,0,1]
+	movd	%xmm1, %rsi
+	movd	%xmm0, %rdx
 	movb	$0, %al
 	callq	printf
 	xorl	%ecx, %ecx
@@ -113,8 +114,8 @@ main:                                   # @main
 	.type	.L.str,@object          # @.str
 	.section	.rodata.str1.1,"aMS",@progbits,1
 .L.str:
-	.asciz	"%llx %llx"
-	.size	.L.str, 10
+	.asciz	"%llx %llx\n"
+	.size	.L.str, 11
 
 
 	.ident	"clang version 3.7.1 (tags/RELEASE_371/final)"

@@ -1,11 +1,5 @@
 	.text
-	.file	"pmul.ll"
-	.section	.rodata.cst16,"aM",@progbits,16
-	.align	16
-.LCPI0_0:
-	.quad	4294967295              # 0xffffffff
-	.quad	4294967295              # 0xffffffff
-	.text
+	.file	"pmul_original.ll"
 	.globl	main
 	.align	16, 0x90
 	.type	main,@function
@@ -55,25 +49,11 @@ main:                                   # @main
 	movaps	%xmm1, -48(%rbp)
 	movaps	%xmm0, -64(%rbp)
 	movaps	-48(%rbp), %xmm1
-	movaps	.LCPI0_0(%rip), %xmm2   # xmm2 = [4294967295,4294967295]
-	pand	%xmm2, %xmm1
-	pand	%xmm2, %xmm0
-	movaps	%xmm1, %xmm2
-	pmuludq	%xmm0, %xmm2
-	movaps	%xmm0, %xmm3
-	psrlq	$32, %xmm3
-	movaps	%xmm1, %xmm4
-	pmuludq	%xmm3, %xmm4
-	psllq	$32, %xmm4
-	paddq	%xmm4, %xmm2
-	psrlq	$32, %xmm1
 	pmuludq	%xmm0, %xmm1
-	psllq	$32, %xmm1
-	paddq	%xmm1, %xmm2
-	movaps	%xmm2, c(%rip)
-	pshufd	$78, %xmm2, %xmm0       # xmm0 = xmm2[2,3,0,1]
+	movaps	%xmm1, c(%rip)
+	pshufd	$78, %xmm1, %xmm0       # xmm0 = xmm1[2,3,0,1]
 	movd	%xmm0, %rsi
-	movd	%xmm2, %rdx
+	movd	%xmm1, %rdx
 	movb	$0, %al
 	callq	printf
 	xorl	%ecx, %ecx
