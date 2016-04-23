@@ -259,16 +259,24 @@ namespace {
         if (func->getName() == "llvm.x86.sse2.cmp.pd") {
           Value *v0 = call->getOperand(0);
           Value *v1 = call->getOperand(1);
+          Value *v2 = call->getOperand(2);
           DEBUG(errs() << "\n*****v0:" << *v0 << "*******\n");
           DEBUG(errs() << "\n*****v1:" << *v1 << "*******\n");
           // Insert before call.
           IRBuilder<> builder(call);
 
-          // comp = fcmp ult <2 x double> %v0, %v1
+          // %comp = fcmp ult <2 x double> %v0, %v1 || %comp = fcmp ueq <2 x double> %v0, %v1 
           // %temp = sext <2 x i1> %comp to <2 x i64>
           // %result = bitcast <2 x i64> %temp to <2 x double>
-
-          Value *comp = builder.CreateFCmpOLT(v0, v1);
+          ConstantInt * CI = dyn_cast<ConstantInt>(v2);
+          Value * comp;
+          if (CI->isZero()) {
+              // equal
+              comp = builder.CreateFCmpOEQ(v0, v1);
+          } else {
+              // less than
+              comp = builder.CreateFCmpOLT(v0, v1);
+          }
           Value *temp = builder.CreateSExt(comp, VectorType::get(Type::getInt64Ty(context), 2));
           Value *result = builder.CreateBitCast(temp, VectorType::get(Type::getDoubleTy(context), 2));          
 
@@ -277,6 +285,8 @@ namespace {
         }
 
         if (func->getName() == "llvm.x86.sse2.cmp.sd") {
+          // TODO only deals with cmplt_pd for now
+          // check the third parameter of the intrinsic call to know its variation (lt/gt/eq)
           Value *v0 = call->getOperand(0);
           Value *v1 = call->getOperand(1);
           DEBUG(errs() << "\n*****v0:" << *v0 << "*******\n");
@@ -290,7 +300,7 @@ namespace {
 
           Value *a0 = builder.CreateExtractElement(v0, builder.getInt32(0));
           Value *a1 = builder.CreateExtractElement(v1, builder.getInt32(0));
-          Value *comp = builder.CreateFCmpUEQ(a0, a1);
+          Value *comp = builder.CreateFCmpOEQ(a0, a1);
           
           // %temp = sext i1 %comp to i64
           // %b0 = bitcast i64 %temp to double
