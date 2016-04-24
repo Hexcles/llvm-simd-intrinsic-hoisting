@@ -6,16 +6,99 @@ Intel provides a thin wrapper of SIMD instructions in the form of C functions, c
 
 #Design
 
-After making a survey of the whole SSE2 extension, we find that although there are lots of SSE2 intrinsics, they actually fall into limited categories. After looking deep into the header files provided by clang, we find there are many simple SSE2 intrinsics which can be represented by simple, standard C operations.
- 
-On the other hand, there are some intrinsics which seem to be simple at frist sight turn out have slightly different semantics for SIMD operations. For example, in the "shift" operation of SSE2, we must first divide the operand into different lains, which means the shifting will not cross the border of lains. In another instance, the multiplication in SSE2, there is a problem that LLVM doesn't support saturation natively.
-
-A more interesting case is the "min" operation in SSE2. It will be translated into an LLVM intrinsic call finally. Then we can manually hoist the intrinsic call into two operations: icmp and select. These two operations in LLVM IR will eventually be compiled into the original SIMD instruction by the backend. It actually happens during the "SelectionDAG" phase: whenever there is a "select" operation, the llvm will look deep into the operand of "select", and try to detect whether it is an "icmp" operation. If so, the LLVM will replace the whole thing into a single operation "smin", which is actually an operation in the "SelectionDAG" phase. Later on, the "smin" operation will be mapped to an original SIMD instruction during the "Instruction Selection" phase.
 
 IntrinsicHoister is a custom LLVM pass working on IR level, inspired byHuang’s work [1]. The pass scans for intrinsic calls and replaces the callwith the a sequence of native IR having the equivalent effect, essentiallya peephole expansion. We chose our examples from SSE2 in a structuralmanner based on our categorization. We tried to maximize the coverageand looked for the optimal transformation. Here are the results:
 1. Many intrinsics are already implemented with native C expressionsdirectly in the header file (provided by clang). These are the ones thatmatch the semantics of (combinations of) C operators, usually purevertical. Shuffle and unpack also belong to this case. (e.g. add, sub, and,set, load, cmp_epi)
 2. Some intrinsics have an optimal transformation that can be compiledback to the original SIMD instruction. They cannot be expressed withsimple C expressions, but can be implemented by a few IR statementsand usually become a single ISD node in SelectionDAG. (e.g. cmp_pd,shift, sqrt, min, max)
 3. The other intrinsics seem impossible to be hoisted to efficient code.All the hoisting methods we tried were scalarized by LLVM backend.These intrinsics are either compound operations or beyond somelimitations of LLVM IR such as saturated arithmetic and change of fieldsizes in the result. (e.g. avg, madd, sad, pack, pmuludq)
+After making a survey of the whole SSE2 extension, we find that although there are lots of SSE2 intrinsics, they actually fall into these three categories. Here are the detailed statistical results:
+###Case 1: 
+Already implemented in C expressions in clang header
+
+
+operation| count
+-----|-----:
+add | 11
+sub | 11
+div | 2
+mullo, mul_sd, mul_pd | 3
+and | 4
+xor | 2
+or | 2
+cast | 6
+cmp\*_epi | 9
+set | 21
+extract | 1
+insert | 1
+load | 11
+store | 11
+shuffle | 4
+unpack | 10
+
+####Characteristics
+
+* Can be expressed by standard C operators (arithmetic & bit operations)
+* Mostly pure vertical operations
+* Special case: shuffle & unpack (element selection with immediate operands or constant/hard-coded patterns) via shufflevector
+
+###Case 2: 
+Hoisted and compiled to efficient SIMD instructions
+
+operation| count
+-----|-----:
+cmp\*_pd | 12
+comi | 12
+shift | 20
+sqrt | 2
+min | 4
+max | 4
+
+####Characteristics
+
+* Can be represented by a short sequence of LLVM IR or ISD Ops
+* Mostly pure vertical operations
+
+
+###Case 3:
+Hoisted but scalarized during compilation
+
+operation| count
+-----|-----:
+cmp*_sd | 12
+avg | 2
+pmuludq, mulhi, madd | 4
+pack | 3
+movemask | 3
+move | 4
+sad | 1
+
+####Characteristics
+
+* Saturated operations
+* Horizontal operations
+* Field width changed
+
+###Others: 
+Not researched
+
+operation| count
+-----|-----:
+clflush | 1
+lfence | 1
+mfence | 1
+pause | 1
+stream | 4
+convert cvt | 29
+
+
+
+##key findings
+
+1. After looking deep into the header files provided by clang, we find there are many simple SSE2 intrinsics which can be represented by simple, standard C operations.
+ 
+2. On the other hand, there are some intrinsics which seem to be simple at frist sight turn out have slightly different semantics for SIMD operations. For example, in the "shift" operation of SSE2, we must first divide the operand into different lains, which means the shifting will not cross the border of lains. In another instance, the multiplication in SSE2, there is a problem that LLVM doesn't support saturation natively.
+
+3. A more interesting case is the "min" operation in SSE2. It will be translated into an LLVM intrinsic call finally. Then we can manually hoist the intrinsic call into two operations: icmp and select. These two operations in LLVM IR will eventually be compiled into the original SIMD instruction by the backend. It actually happens during the "SelectionDAG" phase: whenever there is a "select" operation, the llvm will look deep into the operand of "select", and try to detect whether it is an "icmp" operation. If so, the LLVM will replace the whole thing into a single operation "smin", which is actually an operation in the "SelectionDAG" phase. Later on, the "smin" operation will be mapped to an original SIMD instruction during the "Instruction Selection" phase.
 
 
 #Implementation Details
